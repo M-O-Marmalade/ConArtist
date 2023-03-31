@@ -1,5 +1,5 @@
 # Soil
-A lightweight ASCII game library.
+A lightweight ASCII game library. (WIP)
 
 ## Features
 - Classes to aid in creating and drawing ASCII graphics.
