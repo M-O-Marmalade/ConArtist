@@ -3,11 +3,13 @@
 #include <string>
 #include <Windows.h>
 
-class ASCIISprite {
-private:
+namespace Soil {
+	class ASCIISprite {
+	private:
 
-public:
-	std::string text;
-	WORD color;
-	ASCIISprite(std::string text, WORD color);
-};
+	public:
+		std::string text;
+		WORD color;
+		ASCIISprite(std::string text, WORD color);
+	};
+}

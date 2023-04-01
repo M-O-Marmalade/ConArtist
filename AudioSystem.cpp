@@ -7,7 +7,7 @@
 #include "AudioSystem.h"
 
 
-AudioSystem::AudioSystem(bool fmodLiveUpdate) {
+Soil::AudioSystem::AudioSystem(bool fmodLiveUpdate) {
 
 	// create the Studio System
 	fmodResult = FMOD::Studio::System::create(&fmodSystem);
@@ -25,26 +25,26 @@ AudioSystem::AudioSystem(bool fmodLiveUpdate) {
 	fmodResult = fmodSystem->initialize(256, fmodLiveUpdate ? FMOD_STUDIO_INIT_LIVEUPDATE : FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0);
 }
 
-AudioSystem::~AudioSystem() {
+Soil::AudioSystem::~AudioSystem() {
 	this->fmodSystem->release();
 }
 
-void AudioSystem::loadMasterBank(std::string bankPath) {
+void Soil::AudioSystem::loadMasterBank(std::string bankPath) {
 	fmodSystem->loadBankFile( bankPath.c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &(this->masterBank));
 }
 
-void AudioSystem::loadStringsBank(std::string bankPath) {
+void Soil::AudioSystem::loadStringsBank(std::string bankPath) {
 	fmodSystem->loadBankFile( bankPath.c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &(this->stringsBank));
 }
 
-void AudioSystem::loadBank(std::string bankPath) {
+void Soil::AudioSystem::loadBank(std::string bankPath) {
 	FMOD::Studio::Bank* bankPtr = NULL;
 	this->fmodResult = fmodSystem->loadBankFile(bankPath.c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &bankPtr);
 	this->fmodBanks[bankPath] = bankPtr;
 	this->fmodResult = this->fmodBanks[bankPath]->loadSampleData();
 }
 
-void AudioSystem::loadEventInstance(std::string eventName) {
+void Soil::AudioSystem::loadEventInstance(std::string eventName) {
 	FMOD::Studio::EventDescription* eventDescription = NULL;
 	auto tempStr = "event:/" + eventName;
 	auto tempStrPtr = tempStr.c_str();
@@ -56,14 +56,14 @@ void AudioSystem::loadEventInstance(std::string eventName) {
 	fmodEventInstances[eventName] = eventInstance;
 }
 
-void AudioSystem::fmodUpdate() {
+void Soil::AudioSystem::fmodUpdate() {
 	fmodResult = fmodSystem->update();
 }
 
-void AudioSystem::startEventInstance(std::string eventName) {
+void Soil::AudioSystem::startEventInstance(std::string eventName) {
 	fmodEventInstances[eventName]->start();
 }
 
-void AudioSystem::stopEventInstance(std::string eventName, bool fadeOut) {
+void Soil::AudioSystem::stopEventInstance(std::string eventName, bool fadeOut) {
 	fmodEventInstances[eventName]->stop(fadeOut ? FMOD_STUDIO_STOP_ALLOWFADEOUT : FMOD_STUDIO_STOP_IMMEDIATE);
 }

@@ -1,11 +1,11 @@
 #include "ASCIIGraphics.h"
 
-ASCIIGraphics::ASCIIGraphics(int width, int height) : width{ width }, height{ height } {
+Soil::ASCIIGraphics::ASCIIGraphics(int width, int height) : width{ width }, height{ height } {
 	this->textBuffer = std::string(width * height, ' ');
 	this->attributeBuffer = std::vector<WORD>(width * height, FOREGROUND_RED);
 }
 
-void ASCIIGraphics::drawTextSprite(int x, int y, ASCIISprite sprite) {
+void Soil::ASCIIGraphics::drawTextSprite(int x, int y, ASCIISprite sprite) {
 	int i = 0, x1 = x, y1 = y;
 	while (i < sprite.text.size() && x1 >= 0 && y1 >= 0 && x1 < this->width && y1 < this->height) {
 		if (sprite.text[i] == '\n') {
@@ -21,11 +21,11 @@ void ASCIIGraphics::drawTextSprite(int x, int y, ASCIISprite sprite) {
 	}
 }
 
-void ASCIIGraphics::drawTextSprite(Coords2D coordinates, ASCIISprite sprite) {
+void Soil::ASCIIGraphics::drawTextSprite(Coords2D coordinates, ASCIISprite sprite) {
 	drawTextSprite(coordinates.x, coordinates.y, sprite);
 }
 
-void ASCIIGraphics::drawText(int x, int y, std::string stringToWrite) {
+void Soil::ASCIIGraphics::drawText(int x, int y, std::string stringToWrite) {
 	int i = 0, x1 = x, y1 = y;
 	while (i < stringToWrite.size() && x1 >= 0 && y1 >= 0 && x1 < this->width && y1 < this->height) {
 		if (stringToWrite[i] == '\n') {
@@ -40,11 +40,11 @@ void ASCIIGraphics::drawText(int x, int y, std::string stringToWrite) {
 	}
 }
 
-void ASCIIGraphics::drawText(Coords2D coordinates, std::string stringToWrite) {
+void Soil::ASCIIGraphics::drawText(Coords2D coordinates, std::string stringToWrite) {
 	this->drawText(coordinates.x, coordinates.y, stringToWrite);
 }
 
-void ASCIIGraphics::fillText(int left, int top, int right, int bottom, wchar_t charToWrite) {
+void Soil::ASCIIGraphics::fillText(int left, int top, int right, int bottom, char charToWrite) {
 	int x = left, y = top;
 	for (int y = top; y <= bottom; y++) {
 		for (int x = left; x <= right; x++) {
@@ -53,7 +53,7 @@ void ASCIIGraphics::fillText(int left, int top, int right, int bottom, wchar_t c
 	}
 }
 
-void ASCIIGraphics::fillColor(WORD colorToDraw, int left, int top, int right, int bottom) {
+void Soil::ASCIIGraphics::fillColor(WORD colorToDraw, int left, int top, int right, int bottom) {
 	int x = std::max(left, 0), y = std::max(top, 0);
 	while (y <= bottom && y < this->height) {
 		this->attributeBuffer[x + y * this->width] = colorToDraw; // color foreground & background
@@ -67,6 +67,6 @@ void ASCIIGraphics::fillColor(WORD colorToDraw, int left, int top, int right, in
 	}
 }
 
-void ASCIIGraphics::fillColor(WORD colorToDraw, int x, int y) {
+void Soil::ASCIIGraphics::fillColor(WORD colorToDraw, int x, int y) {
 		this->attributeBuffer[x + y * this->width] = colorToDraw; // color foreground & background
 }
