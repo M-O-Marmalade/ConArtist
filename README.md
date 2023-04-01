@@ -1,5 +1,5 @@
 # Soil
-A lightweight ASCII game development framework. (WIP)
+A (very WIP) lightweight ASCII game development framework.
 
 ## Features
 - Classes to aid in creating and drawing ASCII graphics.
