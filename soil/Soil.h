@@ -7,4 +7,5 @@
 #include "AudioSystem.h"
 #include "ColorPalette.h"
 #include "Coords2D.h"
+#include "InputManager.h"
 #include "Sleep.h"
