@@ -24,5 +24,6 @@ namespace Soil {
 		void fillText(int left, int top, int right, int bottom, char charToWrite);
 		void fillColor(WORD colorToDraw, int left, int top, int right, int bottom);
 		void fillColor(WORD colorToDraw, int x, int y);
+		void fillColorBackground(WORD colorToDraw, int left, int top, int right, int bottom);
 	};
 }

@@ -70,3 +70,18 @@ void Soil::ASCIIGraphics::fillColor(WORD colorToDraw, int left, int top, int rig
 void Soil::ASCIIGraphics::fillColor(WORD colorToDraw, int x, int y) {
 		this->attributeBuffer[x + y * this->width] = colorToDraw; // color foreground & background
 }
+
+void Soil::ASCIIGraphics::fillColorBackground(WORD colorToDraw, int left, int top, int right, int bottom) {
+	WORD backgroundColorMask = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY;
+	int x = std::max(left, 0), y = std::max(top, 0);
+	while (y <= bottom && y < this->height) {
+		this->attributeBuffer[x + y * this->width] |= colorToDraw & backgroundColorMask;
+		if (x < right && x < this->width - 1) {
+			x++;
+		}
+		else {
+			x = left;
+			y++;
+		}
+	}
+}

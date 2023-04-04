@@ -2,16 +2,17 @@
 #include <thread>
 #include <vector>
 #include <string>
+#include <mutex>
 
 namespace Soil {
 	class InputManager {
 	private:
 		std::vector<char> keysToCheck = std::vector<char>();
+		std::mutex keysToCheckMutex;
 		std::vector<bool> inputBuffer = std::vector<bool>();
 		std::vector<bool> inputAccessibleBuffer = std::vector<bool>();
 		std::thread inputThread;
 		bool alive = true;
-		bool paused = false;
 
 		void inputThreadLoop();
 

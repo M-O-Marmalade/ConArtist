@@ -18,6 +18,12 @@ namespace Soil {
 			this->y += other.y;
 		}
 
+		Coords2D operator + (const int num) {
+			this->x += num;
+			this->y += num;
+			return *this;
+		}
+
 		Coords2D(int x = 0, int y = 0) : x{ x }, y{ y } {};
 	};
 }

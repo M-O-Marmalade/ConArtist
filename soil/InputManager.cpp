@@ -4,13 +4,11 @@
 
 void Soil::InputManager::inputThreadLoop() {
 	while (this->alive) {
-		if (!this->paused) {
-			for (char key : this->keysToCheck) {
-				if (!this->paused) {
-					this->inputBuffer[key] = (0x8000 & GetAsyncKeyState((unsigned char)(key))) != 0;
-				}
-			}
+		this->keysToCheckMutex.lock();
+		for (char key : this->keysToCheck) {
+			this->inputBuffer[key] = this->inputBuffer[key] || (0x8000 & GetAsyncKeyState((unsigned char)(key))) != 0;
 		}
+		this->keysToCheckMutex.unlock();
 	}
 }
 
@@ -29,24 +27,24 @@ Soil::InputManager::~InputManager() {
 }
 
 void Soil::InputManager::addKeys(std::string keysToAdd) {
-	this->paused = true;
+	this->keysToCheckMutex.lock();
 	for (char key : keysToAdd) {
 		if (std::count(this->keysToCheck.begin(), this->keysToCheck.end(), key) == 0) { // check if we already have this key registered
 			this->keysToCheck.push_back(key);
 		}
 	}
-	this->paused = false;
+	this->keysToCheckMutex.unlock();
 }
 
 void Soil::InputManager::removeKeys(std::string keysToRemove) {
-	this->paused = true;
+	this->keysToCheckMutex.lock();
 	for (char key : keysToRemove) {
 		auto index = std::find(this->keysToCheck.begin(), this->keysToCheck.end(), key); // get the index of the key, if it's registered
 		if (index < this->keysToCheck.end()) { 
 			this->keysToCheck.erase(index);
 		}
 	}
-	this->paused = false;
+	this->keysToCheckMutex.unlock();
 }
 
 void Soil::InputManager::getBufferState() {

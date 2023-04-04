@@ -36,18 +36,52 @@ Soil::ASCIIOutputCMD::~ASCIIOutputCMD() {
 }
 
 void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics) {
+
+	// check what size our window is
+	CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
+	GetConsoleScreenBufferInfo(this->gameConsoleHandle, &consoleScreenBufferInfo);
+
+	if (
+		consoleScreenBufferInfo.dwMaximumWindowSize.X != this->currentWindowSize.X || 
+		consoleScreenBufferInfo.dwMaximumWindowSize.Y != this->currentWindowSize.Y
+		) {
+
+		// resize our buffer to fit the window size
+		SetConsoleScreenBufferSize(this->gameConsoleHandle, consoleScreenBufferInfo.dwMaximumWindowSize);
+
+		// clear the buffer of any leftover characters from the previous size
+		DWORD garbage;
+		FillConsoleOutputCharacter(
+			this->gameConsoleHandle,
+			' ',
+			consoleScreenBufferInfo.dwMaximumWindowSize.X * consoleScreenBufferInfo.dwMaximumWindowSize.Y, { 0,0 }, &garbage
+		);
+
+		// store the size for comparison the next time we check this `if` statement
+		this->currentWindowSize = consoleScreenBufferInfo.dwMaximumWindowSize;
+	}
+
+
+	// find the coordinates we need to draw our ASCIIGraphics at to be centered
+	short xOrigin = std::max(0, (consoleScreenBufferInfo.dwMaximumWindowSize.X - asciiGraphics.width) / 2);
+	short yOrigin = std::max(0, (consoleScreenBufferInfo.dwMaximumWindowSize.Y - asciiGraphics.height) / 2);
+
 	DWORD dwBytesWritten;
 	for (short y = 0; y < asciiGraphics.height; y++) {
-		WriteConsoleOutputAttribute(this->gameConsoleHandle, &asciiGraphics.attributeBuffer[y * asciiGraphics.width], asciiGraphics.width, { 0,y }, &dwBytesWritten);
-		WriteConsoleOutputCharacter(this->gameConsoleHandle, asciiGraphics.textBuffer.c_str() + y * asciiGraphics.width, asciiGraphics.width, { 0,y }, &dwBytesWritten);
-
-		// using VTS to draw the screen
-		//wprintf(CSI L"%d;%dH", y, x);	// position the cursor
-		//wprintf(CSI L"38;2;%d;%d;%dm",	// set foreground RGB color
-		//	    attributes[x + y * nScreenWidth].first[0],
-		//	    attributes[x + y * nScreenWidth].first[1],
-		//	    attributes[x + y * nScreenWidth].first[2]);
-		//wprintf(CSI L"48;2;%d;%d;%dm"); // set background RGB color
-		//wprintf(L"%c" ,screenString[x + y * nScreenWidth]); // print the character
+		WriteConsoleOutputAttribute(
+			this->gameConsoleHandle, 
+			&asciiGraphics.attributeBuffer[y * asciiGraphics.width], 
+			asciiGraphics.width, 
+			{ xOrigin, yOrigin + y }, 
+			&dwBytesWritten
+		);
+		
+		WriteConsoleOutputCharacter(
+			this->gameConsoleHandle, 
+			asciiGraphics.textBuffer.c_str() + y * asciiGraphics.width, 
+			asciiGraphics.width, 
+			{ xOrigin, yOrigin + y }, 
+			&dwBytesWritten
+		);
 	}
 }
