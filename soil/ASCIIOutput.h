@@ -4,6 +4,6 @@
 namespace Soil {
 	class ASCIIOutput
 	{
-		virtual void pushOutput(ASCIIGraphics& asciiGraphics) = 0;
+		virtual void pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth maxAllowedColorDepth) = 0;
 	};
 }

@@ -1,20 +1,74 @@
 #include "ASCIIGraphics.h"
 
+#include "utfcpp/source/utf8.h"
+
+void Soil::ASCIIGraphics::putText(int x, int y, char32_t charToPut) {
+	if (x >= 0 && x < this->width && y >= 0 && y < this->height) {
+		if (this->textBuffer[y][x] != charToPut) {
+			this->textBuffer[y][x] = charToPut;
+			this->changedTextCells[y][x] = true;
+			this->changedTextRows[y]++;
+			this->changedTextColumns[x]++;
+		}
+	}
+}
+
+void Soil::ASCIIGraphics::putColor(int x, int y, Soil::ASCIIColor colorToPut) {
+	if (x >= 0 && x < this->width && y >= 0 && y < this->height) {
+		if (this->colorBuffer[y][x] != colorToPut) {
+			this->colorBuffer[y][x] = colorToPut;
+			this->changedColorCells[y][x] = true;
+			this->changedColorRows[y]++;
+			this->changedColorColumns[x]++;
+		}
+	}
+}
+
 Soil::ASCIIGraphics::ASCIIGraphics(int width, int height) : width{ width }, height{ height } {
-	this->textBuffer = std::string(width * height, ' ');
-	this->attributeBuffer = std::vector<WORD>(width * height, FOREGROUND_RED);
+
+	this->textBuffer = std::vector<std::u32string>(height, std::u32string(width, U' '));
+	this->changedTextCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, false));
+	this->changedTextRows = std::vector<int>(height, false);
+	this->changedTextColumns = std::vector<int>(width, false);
+
+	this->colorBuffer = std::vector<std::vector<Soil::ASCIIColor>>(height, std::vector<Soil::ASCIIColor>(width, Soil::ASCIIColor(0,0,0)));
+	this->changedColorCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, false));
+	this->changedColorRows = std::vector<int>(height, false);
+	this->changedColorColumns = std::vector<int>(width, false);
+}
+
+void Soil::ASCIIGraphics::clearScreen() {
+	for (int y = 0; y < this->height; y++) {
+		for (int x = 0; x < this->width; x++) {
+			putText(x, y, U' ');
+			putColor(x, y, Soil::ASCIIColor(0,0,0));
+		}
+	}
+}
+
+void Soil::ASCIIGraphics::resetTextObservers(bool val) {
+	this->changedTextCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, val));
+	this->changedTextRows = std::vector<int>(height, val ? height : 0);
+	this->changedTextColumns = std::vector<int>(width, val ? width : 0);
+}
+
+void Soil::ASCIIGraphics::resetColorObservers(bool val) {
+	this->changedColorCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, val));
+	this->changedColorRows = std::vector<int>(height, val ? height : 0);
+	this->changedColorColumns = std::vector<int>(width, val ? width : 0);
 }
 
 void Soil::ASCIIGraphics::drawTextSprite(int x, int y, ASCIISprite sprite) {
 	int i = 0, x1 = x, y1 = y;
 	while (i < sprite.text.size() && x1 >= 0 && y1 >= 0 && x1 < this->width && y1 < this->height) {
-		if (sprite.text[i] == '\n') {
+		if (sprite.text[i] == U'\n') {
 			x1 = x;
 			y1++;
 		}
 		else {
-			this->textBuffer[x1 + y1 * this->width] = sprite.text[i];
-			this->attributeBuffer[x1 + y1 * this->width] = sprite.color;
+			putText(x1, y1, sprite.text[i]);
+			putColor(x1, y1, sprite.color);
+
 			x1++;
 		}
 		i++;
@@ -25,15 +79,26 @@ void Soil::ASCIIGraphics::drawTextSprite(Coords2D coordinates, ASCIISprite sprit
 	drawTextSprite(coordinates.x, coordinates.y, sprite);
 }
 
+void Soil::ASCIIGraphics::drawText(int x, int y, char32_t charToWrite) {
+	if (x >= 0 && x < this->width && y >= 0 && y < this->height) {
+		putText(x, y, charToWrite);
+	}
+}
+
+void Soil::ASCIIGraphics::drawText(int x, int y, char charToWrite) {
+	Soil::ASCIIGraphics::drawText(x, y, utf8::utf8to32(std::string(1, charToWrite))[0]);
+}
+
 void Soil::ASCIIGraphics::drawText(int x, int y, std::string stringToWrite) {
+	std::u32string stringToWrite32 = utf8::utf8to32(stringToWrite);
 	int i = 0, x1 = x, y1 = y;
-	while (i < stringToWrite.size() && x1 >= 0 && y1 >= 0 && x1 < this->width && y1 < this->height) {
-		if (stringToWrite[i] == '\n') {
+	while (i < stringToWrite32.size() && x1 >= 0 && y1 >= 0 && x1 < this->width && y1 < this->height) {
+		if (stringToWrite32[i] == U'\n') {
 			x1 = x;
 			y1++;
 		}
 		else {
-			this->textBuffer[x1 + y1 * this->width] = stringToWrite[i];
+			putText(x1, y1, stringToWrite32[i]);
 			x1++;
 		}
 		i++;
@@ -45,18 +110,22 @@ void Soil::ASCIIGraphics::drawText(Coords2D coordinates, std::string stringToWri
 }
 
 void Soil::ASCIIGraphics::fillText(int left, int top, int right, int bottom, char charToWrite) {
+	Soil::ASCIIGraphics::fillText(left, top, right, bottom, utf8::utf8to32(std::string(1, charToWrite))[0]);
+}
+
+void Soil::ASCIIGraphics::fillText(int left, int top, int right, int bottom, char32_t charToWrite) {
 	int x = left, y = top;
 	for (int y = top; y <= bottom; y++) {
 		for (int x = left; x <= right; x++) {
-			this->textBuffer[x + y * this->width] = charToWrite;
+			putText(x, y, charToWrite);
 		}
 	}
 }
 
-void Soil::ASCIIGraphics::fillColor(WORD colorToDraw, int left, int top, int right, int bottom) {
+void Soil::ASCIIGraphics::fillColor(int left, int top, int right, int bottom, Soil::ASCIIColor colorToDraw) {
 	int x = std::max(left, 0), y = std::max(top, 0);
 	while (y <= bottom && y < this->height) {
-		this->attributeBuffer[x + y * this->width] = colorToDraw; // color foreground & background
+		putColor(x, y, colorToDraw);
 		if (x < right && x < this->width - 1) {
 			x++;
 		}
@@ -67,21 +136,8 @@ void Soil::ASCIIGraphics::fillColor(WORD colorToDraw, int left, int top, int rig
 	}
 }
 
-void Soil::ASCIIGraphics::fillColor(WORD colorToDraw, int x, int y) {
-		this->attributeBuffer[x + y * this->width] = colorToDraw; // color foreground & background
-}
-
-void Soil::ASCIIGraphics::fillColorBackground(WORD colorToDraw, int left, int top, int right, int bottom) {
-	WORD backgroundColorMask = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY;
-	int x = std::max(left, 0), y = std::max(top, 0);
-	while (y <= bottom && y < this->height) {
-		this->attributeBuffer[x + y * this->width] |= colorToDraw & backgroundColorMask;
-		if (x < right && x < this->width - 1) {
-			x++;
-		}
-		else {
-			x = left;
-			y++;
-		}
+void Soil::ASCIIGraphics::fillColor(int x, int y, Soil::ASCIIColor colorToDraw) {
+	if (x >= 0 && x < this->width && y >= 0 && y < this->height) {
+		putColor(x, y, colorToDraw);
 	}
 }

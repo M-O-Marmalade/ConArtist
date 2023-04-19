@@ -9,12 +9,11 @@
 namespace Soil {
     class ASCIIOutputCMD : public ASCIIOutput {
     private:
-        HANDLE originalConsoleHandle = 0;
-        HANDLE gameConsoleHandle = 0;
-        COORD currentWindowSize;
+        HANDLE consoleOutputHandle = 0;
+        COORD currentWindowSize = {0,0};
     public:
         ASCIIOutputCMD();
         ~ASCIIOutputCMD();
-        void pushOutput(ASCIIGraphics& asciiGraphics);
+        void pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth maxAllowedColorDepth);
     };
 }
