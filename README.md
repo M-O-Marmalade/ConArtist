@@ -9,4 +9,4 @@ Eases cross-platform terminal game development, without taking low-level control
 - Full ANSI color support: 4-bit, 8-bit, and 24-bit/Truecolor.
 - Smart rendering routines (lazy updating, color-batching) allows for framerates as high as 1000's per-second, depending on the graphics being drawn.
 - Interchangeable rendering backends/outputs (currently only Win32 Console is implemented).
-- Multithreaded user input system for detecting mouse/keyboard input reliably.
+- User input system on its own thread for reliable and robust mouse/keyboard input detection.
