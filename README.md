@@ -1,5 +1,5 @@
 # Soil
-A cross-platform C++ ASCII/Unicode terminal game development library.
+A C++ ASCII/Unicode terminal game development library.
 
 ## Ethos
 Eases cross-platform terminal game development, without taking low-level control away from, or enforcing any opinionated methodologies or workflows onto, the developer.
