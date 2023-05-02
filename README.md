@@ -13,3 +13,6 @@ Eases cross-platform terminal game development, without taking low-level control
 
 ## Notes
 - Doesn't currently play well with non-monospaced characters (e.g. full-width [Katakana](https://en.wikipedia.org/wiki/Katakana)). Monospaced alternatives should be used instead (e.g. [half-width kana](https://en.wikipedia.org/wiki/Half-width_kana))
+
+## Examples
+- The [SNEK](https://github.com/M-O-Marmalade/SNEK) project uses Soil for input & rendering.
