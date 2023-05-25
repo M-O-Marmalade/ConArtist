@@ -16,3 +16,6 @@ Eases cross-platform terminal game development, without taking low-level control
 
 ## Examples
 - The [SNEK](https://github.com/M-O-Marmalade/SNEK) project uses Soil for input & rendering.
+
+## Dependencies / Credits
+- The [UTF8-CPP](https://github.com/nemtrif/utfcpp) library is used to convert between string encodings.
