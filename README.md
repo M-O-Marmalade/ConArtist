@@ -1,5 +1,5 @@
 # Soil
-A cross-platform C++ ASCII/Unicode terminal game development library.
+A C++ ASCII/Unicode terminal game development library.
 
 ## Ethos
 Eases cross-platform terminal game development, without taking low-level control away from, or enforcing any opinionated methodologies or workflows onto, the developer.
@@ -13,3 +13,9 @@ Eases cross-platform terminal game development, without taking low-level control
 
 ## Notes
 - Doesn't currently play well with non-monospaced characters (e.g. full-width [Katakana](https://en.wikipedia.org/wiki/Katakana)). Monospaced alternatives should be used instead (e.g. [half-width kana](https://en.wikipedia.org/wiki/Half-width_kana))
+
+## Examples
+- The [SNEK](https://github.com/M-O-Marmalade/SNEK) project uses Soil for input & rendering.
+
+## Dependencies / Credits
+- The [UTF8-CPP](https://github.com/nemtrif/utfcpp) library is used to convert between string encodings.
