@@ -1,3 +1,5 @@
+// Data type which stores a 2D x/y coordinate.
+
 #pragma once
 
 namespace Soil {

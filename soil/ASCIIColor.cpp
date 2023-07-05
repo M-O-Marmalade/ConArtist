@@ -1,14 +1,16 @@
 #include "ASCIIColor.h"
 
 
-Soil::ASCIIColor::ASCIIColor(uint_fast8_t ansi4BitColor, 
+Soil::ASCIIColor::ASCIIColor(uint_fast8_t ansi4BitColorFG,
+                             uint_fast8_t ansi4BitColorBG,
                              uint_fast8_t ansi8BitColorFG, 
                              uint_fast8_t ansi8BitColorBG,
                              Soil::ANSITrueColor ansi24BitTruecolorFG, 
                              Soil::ANSITrueColor ansi24BitTruecolorBG, 
                              ANSIColorDepth preferredColorDepth) :
 
-                             ansi4BitColor{ ansi4BitColor }, 
+                             ansi4BitColorFG{ ansi4BitColorFG }, 
+                             ansi4BitColorBG{ (uint_fast8_t)(ansi4BitColorBG + uint_fast8_t(10)) }, // add 10 to convert foreground SGR to background SGR
                              ansi8BitColorFG{ ansi8BitColorFG},
                              ansi8BitColorBG{ ansi8BitColorBG },
                              ansi24BitTruecolorFG{ ansi24BitTruecolorFG },
@@ -18,7 +20,8 @@ Soil::ASCIIColor::ASCIIColor(uint_fast8_t ansi4BitColor,
 }
 
 bool Soil::ASCIIColor::operator==(ASCIIColor& other) {
-	if (this->ansi4BitColor == other.ansi4BitColor && 
+	if (this->ansi4BitColorFG == other.ansi4BitColorFG && 
+	    this->ansi4BitColorBG == other.ansi4BitColorBG &&
 	    this->ansi8BitColorFG == other.ansi8BitColorFG && 
 	    this->ansi8BitColorBG == other.ansi8BitColorBG &&
 	    this->ansi24BitTruecolorFG == other.ansi24BitTruecolorFG &&
@@ -31,7 +34,8 @@ bool Soil::ASCIIColor::operator==(ASCIIColor& other) {
 }
 
 bool Soil::ASCIIColor::operator!=(ASCIIColor& other) {
-	if (this->ansi4BitColor == other.ansi4BitColor &&
+	if (this->ansi4BitColorFG == other.ansi4BitColorFG &&
+	    this->ansi4BitColorBG == other.ansi4BitColorBG &&
 	    this->ansi8BitColorFG == other.ansi8BitColorFG &&
 	    this->ansi8BitColorBG == other.ansi8BitColorBG &&
 	    this->ansi24BitTruecolorFG == other.ansi24BitTruecolorFG &&

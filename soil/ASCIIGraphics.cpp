@@ -4,58 +4,28 @@
 
 void Soil::ASCIIGraphics::putText(int x, int y, char32_t charToPut) {
 	if (x >= 0 && x < this->width && y >= 0 && y < this->height) {
-		if (this->textBuffer[y][x] != charToPut) {
-			this->textBuffer[y][x] = charToPut;
-			this->changedTextCells[y][x] = true;
-			this->changedTextRows[y]++;
-			this->changedTextColumns[x]++;
-		}
+		this->textBuffer[y][x] = charToPut;
 	}
 }
 
 void Soil::ASCIIGraphics::putColor(int x, int y, Soil::ASCIIColor colorToPut) {
 	if (x >= 0 && x < this->width && y >= 0 && y < this->height) {
-		if (this->colorBuffer[y][x] != colorToPut) {
-			this->colorBuffer[y][x] = colorToPut;
-			this->changedColorCells[y][x] = true;
-			this->changedColorRows[y]++;
-			this->changedColorColumns[x]++;
-		}
+		this->colorBuffer[y][x] = colorToPut;
 	}
 }
 
 Soil::ASCIIGraphics::ASCIIGraphics(int width, int height) : width{ width }, height{ height } {
-
 	this->textBuffer = std::vector<std::u32string>(height, std::u32string(width, U' '));
-	this->changedTextCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, false));
-	this->changedTextRows = std::vector<int>(height, false);
-	this->changedTextColumns = std::vector<int>(width, false);
-
 	this->colorBuffer = std::vector<std::vector<Soil::ASCIIColor>>(height, std::vector<Soil::ASCIIColor>(width, Soil::ASCIIColor(0,0,0)));
-	this->changedColorCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, false));
-	this->changedColorRows = std::vector<int>(height, false);
-	this->changedColorColumns = std::vector<int>(width, false);
 }
 
-void Soil::ASCIIGraphics::clearScreen() {
+void Soil::ASCIIGraphics::clearBuffers() {
 	for (int y = 0; y < this->height; y++) {
 		for (int x = 0; x < this->width; x++) {
 			putText(x, y, U' ');
 			putColor(x, y, Soil::ASCIIColor(0,0,0));
 		}
 	}
-}
-
-void Soil::ASCIIGraphics::resetTextObservers(bool val) {
-	this->changedTextCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, val));
-	this->changedTextRows = std::vector<int>(height, val ? height : 0);
-	this->changedTextColumns = std::vector<int>(width, val ? width : 0);
-}
-
-void Soil::ASCIIGraphics::resetColorObservers(bool val) {
-	this->changedColorCells = std::vector<std::vector<bool>>(height, std::vector<bool>(width, val));
-	this->changedColorRows = std::vector<int>(height, val ? height : 0);
-	this->changedColorColumns = std::vector<int>(width, val ? width : 0);
 }
 
 void Soil::ASCIIGraphics::drawTextSprite(int x, int y, ASCIISprite sprite) {

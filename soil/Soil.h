@@ -1,3 +1,5 @@
+// This header allows you to include the entire Soil library at once.
+
 #pragma once
 
 #include "ANSITrueColor.h"

@@ -1,3 +1,5 @@
+// This class is currently unneeded/unused.
+
 #pragma once
 #include "ASCIIGraphics.h"
 

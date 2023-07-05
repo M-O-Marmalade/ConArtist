@@ -1,3 +1,7 @@
+// the ASCIIGraphics class is a "screen" that stores buffers of Unicode text and ANSI color data.
+// This is the class that you interface with when drawing graphics.
+// When you are ready to display the graphics data this class contains to a terminal window, you pass this class/object to an ASCIIOutput class/object, which pushes data from this class to the OS's terminal display.
+
 #pragma once
 #include <cstdint>
 #include <string>
@@ -14,26 +18,18 @@ namespace Soil {
 	private:
 		void putText(int x, int y, char32_t charToPut);
 		void putColor(int x, int y, Soil::ASCIIColor colorToPut);
+
 	public:
 		int width;
 		int height;
 
 		// buffers are indexed [y,x], origin ([0,0]) is the top-left cell of the console
 		std::vector<std::u32string> textBuffer;
-		std::vector<std::vector<bool>> changedTextCells;
-		std::vector<int> changedTextRows;
-		std::vector<int> changedTextColumns;
-
 		std::vector<std::vector<Soil::ASCIIColor>> colorBuffer;
-		std::vector<std::vector<bool>> changedColorCells;
-		std::vector<int> changedColorRows;
-		std::vector<int> changedColorColumns;
 
 		ASCIIGraphics(int width, int height);
 
-		void clearScreen();
-		void resetTextObservers(bool val);
-		void resetColorObservers(bool val);
+		void clearBuffers();
 		void drawTextSprite(int x, int y, ASCIISprite sprite);
 		void drawTextSprite(Coords2D coordinates, ASCIISprite sprite);
 		void drawText(int x, int y, char32_t charToWrite);

@@ -1,3 +1,5 @@
+// Defines a 24-bit ANSI color, or ANSI "TrueColor". Used in the ASCIIColor class.
+
 #pragma once
 #include <cstdint>
 

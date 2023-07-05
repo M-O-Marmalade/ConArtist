@@ -1,3 +1,6 @@
+// The InputManager class spawns its own thread which monitors keyboard/mouse button input.
+// This allows console/terminal games to read multiple inputs at once, whereas consoles are typically limited to a single input at a time.
+
 #pragma once
 #include <thread>
 #include <vector>

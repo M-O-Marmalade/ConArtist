@@ -1,6 +1,7 @@
 ﻿#include "ASCIIOutputCMD.h"
 
 #include <algorithm>
+#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <io.h>
@@ -9,6 +10,99 @@
 
 #define ESC L"\x1b"
 #define CSI L"\x1b["
+
+void Soil::ASCIIOutputCMD::resizeBuffer(COORD* newDimensions) {
+	
+	// resize our console buffer to fit the window size
+	SetConsoleScreenBufferSize(this->consoleOutputHandle, *newDimensions);
+
+	// clear the buffer of any leftover characters from the previous size
+	DWORD dwBytesWritten;
+	FillConsoleOutputCharacter(this->consoleOutputHandle,
+		' ',
+		(*newDimensions).X * (*newDimensions).Y,
+		{ 0,0 },
+		&dwBytesWritten);
+
+	// store the size for comparison the next time we check this `if` statement
+	this->currentWindowSize = *newDimensions;
+
+	// redraw the entire screen
+	this->fullRedraw = true;
+
+	// resize our lazy rendering buffers
+	this->textBuffer = std::vector<std::u32string>((*newDimensions).Y, std::u32string((*newDimensions).X, U' '));
+	this->colorBuffer = std::vector<std::vector<Soil::ASCIIColor>>((*newDimensions).X, std::vector<Soil::ASCIIColor>((*newDimensions).X, {0}));
+}
+
+bool Soil::ASCIIOutputCMD::cellNeedsUpdate(int x, int y, ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth currentColorDepth, int outputX, int outputY) {
+	
+	// if we're out of bounds, return false
+	if (outputY >= this->textBuffer.size()
+	 || outputY >= this->colorBuffer.size()
+	 || outputY < 0
+	 || outputX >= this->textBuffer[0].size()
+	 || outputX >= this->colorBuffer[0].size()
+	 || outputX < 0)
+	{
+		return false;
+	}
+
+	// if the previously drawn text doesn't match the text we're drawing, this cell needs to be updated
+	if (asciiGraphics.textBuffer[y][x] != this->textBuffer[outputY][outputX]) {
+		return true;
+	}
+
+	// if the previously drawn color depth doesn't match the one we're drawing, this cell needs to be updated
+	if (currentColorDepth != this->colorBuffer[outputY][outputX].preferredColorDepth) {
+		return true;
+	}
+
+	// if we're drawing 4bit color and the previously drawn color doesn't match the one we're considering drawing, it needs to be updated
+	if (currentColorDepth == ANSI_4BIT_COLOR_DEPTH
+	    && (   asciiGraphics.colorBuffer[y][x].ansi4BitColorFG != this->colorBuffer[outputY][outputX].ansi4BitColorFG
+	        || asciiGraphics.colorBuffer[y][x].ansi4BitColorBG != this->colorBuffer[outputY][outputX].ansi4BitColorBG))
+	{
+		return true;
+	}
+
+	// if we're drawing 8bit color and the previously drawn color doesn't match the one we're considering drawing, it needs to be updated
+	if (currentColorDepth == ANSI_8BIT_COLOR_DEPTH
+	    && (   asciiGraphics.colorBuffer[y][x].ansi8BitColorFG != this->colorBuffer[outputY][outputX].ansi8BitColorFG
+	        || asciiGraphics.colorBuffer[y][x].ansi8BitColorBG != this->colorBuffer[outputY][outputX].ansi8BitColorBG))
+	{
+		return true;
+	}
+
+	// if we're drawing 24bit color and the previously drawn color doesn't match the one we're considering drawing, it needs to be updated
+	if (currentColorDepth == ANSI_24BIT_COLOR_DEPTH
+	    && (   asciiGraphics.colorBuffer[y][x].ansi24BitTruecolorFG != this->colorBuffer[outputY][outputX].ansi24BitTruecolorFG
+	        || asciiGraphics.colorBuffer[y][x].ansi24BitTruecolorBG != this->colorBuffer[outputY][outputX].ansi24BitTruecolorBG))
+	{
+		return true;
+	}
+
+	// if all else passes, then we just need to check if we're doing a full redraw
+	return this->fullRedraw;
+}
+
+void Soil::ASCIIOutputCMD::storeCell(int x, int y, ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth currentColorDepth, int outputX, int outputY) {
+	this->textBuffer[outputY][outputX] = asciiGraphics.textBuffer[y][x];
+	this->colorBuffer[outputY][outputX].preferredColorDepth = currentColorDepth;
+	if (currentColorDepth == ANSI_4BIT_COLOR_DEPTH) {
+		this->colorBuffer[outputY][outputX].ansi4BitColorFG = asciiGraphics.colorBuffer[y][x].ansi4BitColorFG;
+		this->colorBuffer[outputY][outputX].ansi4BitColorBG = asciiGraphics.colorBuffer[y][x].ansi4BitColorBG;
+
+	}
+	else if (currentColorDepth == ANSI_8BIT_COLOR_DEPTH) {
+		this->colorBuffer[outputY][outputX].ansi8BitColorFG = asciiGraphics.colorBuffer[y][x].ansi8BitColorFG;
+		this->colorBuffer[outputY][outputX].ansi8BitColorBG = asciiGraphics.colorBuffer[y][x].ansi8BitColorBG;
+	}
+	else if (currentColorDepth == ANSI_24BIT_COLOR_DEPTH) {
+		this->colorBuffer[outputY][outputX].ansi24BitTruecolorFG = asciiGraphics.colorBuffer[y][x].ansi24BitTruecolorFG;
+		this->colorBuffer[outputY][outputX].ansi24BitTruecolorBG = asciiGraphics.colorBuffer[y][x].ansi24BitTruecolorBG;
+	}
+}
 
 Soil::ASCIIOutputCMD::ASCIIOutputCMD() {
 
@@ -23,6 +117,11 @@ Soil::ASCIIOutputCMD::ASCIIOutputCMD() {
 	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	SetConsoleMode(this->consoleOutputHandle, dwMode);
 
+	// resize/maximize our buffers
+	CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
+	GetConsoleScreenBufferInfo(this->consoleOutputHandle, &consoleScreenBufferInfo);
+	resizeBuffer(&consoleScreenBufferInfo.dwMaximumWindowSize);
+
 	wprintf(CSI L"?1049h");	// switch to alternate buffer
 	wprintf(CSI L"?25l");	// hide the cursor
 }
@@ -34,31 +133,15 @@ Soil::ASCIIOutputCMD::~ASCIIOutputCMD() {
 
 void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth maxAllowedColorDepth) {
 
-	// check what size our window is
+	// check what size our display is
 	CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
 	GetConsoleScreenBufferInfo(this->consoleOutputHandle, &consoleScreenBufferInfo);
 
+	// if our display size has changed since the last output, resize our buffers to fit the new size
 	if (consoleScreenBufferInfo.dwMaximumWindowSize.X != this->currentWindowSize.X || 
 		consoleScreenBufferInfo.dwMaximumWindowSize.Y != this->currentWindowSize.Y) 
 	{
-
-		// resize our buffer to fit the window size
-		SetConsoleScreenBufferSize(this->consoleOutputHandle, consoleScreenBufferInfo.dwMaximumWindowSize);
-
-		// clear the buffer of any leftover characters from the previous size
-		DWORD dwBytesWritten;
-		FillConsoleOutputCharacter(this->consoleOutputHandle,
-		                           ' ',
-		                           consoleScreenBufferInfo.dwMaximumWindowSize.X * consoleScreenBufferInfo.dwMaximumWindowSize.Y, 
-		                           { 0,0 }, 
-		                           & dwBytesWritten);
-
-		// redraw the full screen
-		asciiGraphics.resetTextObservers(true);
-		asciiGraphics.resetColorObservers(true);
-
-		// store the size for comparison the next time we check this `if` statement
-		this->currentWindowSize = consoleScreenBufferInfo.dwMaximumWindowSize;
+		this->resizeBuffer(&consoleScreenBufferInfo.dwMaximumWindowSize);
 	}
 
 
@@ -71,65 +154,32 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 	// draw the screen using a mix of Win32 API and Virtual Terminal Sequences (VTS)
 	DWORD dwBytesWritten;
 	for (short y = 0; y < asciiGraphics.height; y++) {
-
-		// if there are no changes in this row, skip it
-		if (!asciiGraphics.changedTextRows[y] && !asciiGraphics.changedColorRows[y]) {
-			continue;
-		}
-
 		for (short x = 0; x < asciiGraphics.width; x++) {
-
-			// if there are no changes in this cell, skip it
-			if (!asciiGraphics.changedTextCells[y][x] && !asciiGraphics.changedColorCells[y][x]) {
-				continue;
-			}
 
 			// the color depth we'll be drawing at determines whether we'll use Win32 API or VTS
 			Soil::ANSIColorDepth currentColorDepth = std::min(asciiGraphics.colorBuffer[y][x].preferredColorDepth, maxAllowedColorDepth);
 
+			// if there are no changes in this cell, skip it
+			if (!this->cellNeedsUpdate(x, y, asciiGraphics, currentColorDepth, xOrigin + x, yOrigin + y)) {
+				continue;
+			}
+
 			// draw 4-bit color using Win32 API, it's more performant than using VTS
-			if (currentColorDepth == Soil::ANSI_4BIT_COLOR) {
-				
-				// batch consecutive cells of the same color (more performant than drawing each cell)
-				//short x2 = x;
-				//std::vector<CHAR_INFO> outputVector;
-				//while (x2 < asciiGraphics.width 
-				//       && (asciiGraphics.changedTextCells[y][x] || asciiGraphics.changedColorCells[y][x])
-				//       && std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth) == currentColorDepth
-				//       && asciiGraphics.colorBuffer[y][x2].ansi4BitColor == asciiGraphics.colorBuffer[y][x].ansi4BitColor)
-				//{
-				//	CHAR_INFO charInfoToWrite;
-				//	charInfoToWrite.Attributes = asciiGraphics.colorBuffer[y][x2].ansi4BitColor;
-				//	charInfoToWrite.Char.UnicodeChar = (wchar_t)utf8::utf8to16(utf8::utf32to8(std::u32string(1, asciiGraphics.textBuffer[y][x2])))[0];
-				//	outputVector.push_back(charInfoToWrite);
-				//	x2++;
-				//}
-				//x2--;
-
-				//// print output to the console
-				//SMALL_RECT drawCoordinates;
-				//drawCoordinates.Left = xOrigin + x;
-				//drawCoordinates.Right = xOrigin + x2;
-				//drawCoordinates.Top = yOrigin + y;
-				//drawCoordinates.Bottom = yOrigin + y;
-				//WriteConsoleOutputW(this->consoleOutputHandle,
-				//		            &outputVector[0],
-				//		            { x2, 1},
-				//		            { 0, 0 },
-				//		            &drawCoordinates);
-
+			if (currentColorDepth == Soil::ANSI_4BIT_COLOR_DEPTH) {
 
 				// batch consecutive cells of the same color (more performant than drawing each cell)
 				short x2 = x;
 				std::u16string outputString;
 				std::vector<WORD> outputColors;
-				while (x2 < asciiGraphics.width
-					&& (asciiGraphics.changedTextCells[y][x] || asciiGraphics.changedColorCells[y][x])
-					&& std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth) == currentColorDepth
-					&& asciiGraphics.colorBuffer[y][x2].ansi4BitColor == asciiGraphics.colorBuffer[y][x].ansi4BitColor)
+				while (x2 < asciiGraphics.width &&
+				       this->cellNeedsUpdate(x2, y, asciiGraphics, std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth), xOrigin + x2, yOrigin + y) &&
+				       std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth) == currentColorDepth)
 				{
 					outputString.append(utf8::utf8to16(utf8::utf32to8(std::u32string(1, asciiGraphics.textBuffer[y][x2]))));
-					outputColors.push_back(asciiGraphics.colorBuffer[y][x2].ansi4BitColor);
+					WORD foreground = this->ansi4BitSGRtoWin32Attribute[asciiGraphics.colorBuffer[y][x2].ansi4BitColorFG];
+					WORD background = this->ansi4BitSGRtoWin32Attribute[asciiGraphics.colorBuffer[y][x2].ansi4BitColorBG];
+					outputColors.push_back(foreground | background);
+					storeCell(x2, y, asciiGraphics, currentColorDepth, xOrigin + x2, yOrigin + y);
 					x2++;
 				}
 				x2--;
@@ -151,17 +201,17 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 			}
 
 			// draw 8-bit color using VTS
-			else if (currentColorDepth == Soil::ANSI_8BIT_COLOR) {
+			else if (currentColorDepth == Soil::ANSI_8BIT_COLOR_DEPTH) {
 
 				// batch consecutive cells of the same color (more performant than drawing each cell)
 				short x2 = x;
 				std::u16string outputString;
-				while (x2 < asciiGraphics.width
-					    && std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth) == currentColorDepth
-				        && asciiGraphics.colorBuffer[y][x2].ansi8BitColorFG == asciiGraphics.colorBuffer[y][x].ansi8BitColorFG
-					    && asciiGraphics.colorBuffer[y][x2].ansi8BitColorBG == asciiGraphics.colorBuffer[y][x].ansi8BitColorBG)
+				while (x2 < asciiGraphics.width &&
+				      this->cellNeedsUpdate(x2, y, asciiGraphics, std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth), xOrigin + x2, yOrigin + y) &&
+				      std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth) == currentColorDepth)
 				{
 					outputString.append(utf8::utf8to16(utf8::utf32to8(std::u32string(1, asciiGraphics.textBuffer[y][x2]))));
+					storeCell(x2, y, asciiGraphics, currentColorDepth, xOrigin + x2, yOrigin + y);
 					x2++;
 				}
 				x2--;
@@ -169,9 +219,9 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 				// print output to the console
 				wprintf(CSI L"%d;%dH", yOrigin + y + 1, xOrigin + x + 1);	// position the cursor
 				wprintf(CSI L"38;5;%dm",	// set foreground 8-bit color
-					asciiGraphics.colorBuffer[y][x2].ansi8BitColorFG);
+					asciiGraphics.colorBuffer[y][x].ansi8BitColorFG);
 				wprintf(CSI L"48;5;%dm", // set background 8-bit color
-					asciiGraphics.colorBuffer[y][x2].ansi8BitColorBG);
+					asciiGraphics.colorBuffer[y][x].ansi8BitColorBG);
 				wprintf((wchar_t*)outputString.c_str()); // print output
 
 				x = x2;	// update `x` to continue just after the cells we just printed
@@ -179,17 +229,17 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 			
 
 			// draw 24-bit/Truecolor color using VTS 
-			else if (currentColorDepth == Soil::ANSI_24BIT_COLOR) {
+			else if (currentColorDepth == Soil::ANSI_24BIT_COLOR_DEPTH) {
 
 				// batch consecutive cells of the same color (more performant than drawing each cell)
 				short x2 = x;
 				std::u16string outputString;
-				while (x2 < asciiGraphics.width
-				       && std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth) == currentColorDepth
-				       && asciiGraphics.colorBuffer[y][x2].ansi24BitTruecolorFG == asciiGraphics.colorBuffer[y][x].ansi24BitTruecolorFG
-				       && asciiGraphics.colorBuffer[y][x2].ansi24BitTruecolorBG == asciiGraphics.colorBuffer[y][x].ansi24BitTruecolorBG)
+				while (x2 < asciiGraphics.width &&
+				       this->cellNeedsUpdate(x2, y, asciiGraphics, std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth), xOrigin + x2, yOrigin + y) &&
+				       std::min(asciiGraphics.colorBuffer[y][x2].preferredColorDepth, maxAllowedColorDepth) == currentColorDepth)
 				{
 					outputString.append(utf8::utf8to16(utf8::utf32to8(std::u32string(1, asciiGraphics.textBuffer[y][x2]))));
+					storeCell(x2, y, asciiGraphics, currentColorDepth, xOrigin + x2, yOrigin + y);
 					x2++;
 				}
 				x2--;
@@ -210,12 +260,8 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 			}
 
 		}
-
 	}
 
+	this->fullRedraw = false;
 
-
-
-	asciiGraphics.resetTextObservers(false);
-	asciiGraphics.resetColorObservers(false);
 }
