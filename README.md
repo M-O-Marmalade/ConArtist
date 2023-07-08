@@ -8,7 +8,7 @@ C++ Console/Terminal game development library. Decouples game code from OS code,
 - Full ANSI color support, with fallback to lower color depths.: 4-bit, 8-bit, and 24-bit "Truecolor"
 - Framerates as high as 1000's per-second, thanks to smart rendering routines (lazy updating, color-batching)
 - Keyboard/mouse button input detection system
-- Windows support (upport for Linux and MacOS are planned)
+- Windows support (support for Linux and MacOS are planned)
 
 ## Setup
 1. Open Visual Studio.
@@ -43,6 +43,8 @@ using namespace std::chrono_literals;
 
 int main()
 {
+	// Create a display buffer 60 cells wide, and 15 cells high, where we will draw our graphics.
+	// Also create a display output, which will push our graphics to the terminal.
 	ConArtist::CADisplayBuffer caDisplayBuffer(60, 15);
 	ConArtist::CADisplayOutputCMD caDisplayOutputCMD;
 
