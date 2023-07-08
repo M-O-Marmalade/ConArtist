@@ -53,7 +53,9 @@ int main()
 
 	// Place a string into the center of the screen buffer
 	std::u32string hello = U"Hello ConArtist!";
-	caDisplayBuffer.drawText(caDisplayBuffer.width / 2 - hello.size() / 2, caDisplayBuffer.height / 2, hello);
+	int xCoord = caDisplayBuffer.width / 2 - hello.size() / 2;
+	int yCoord = caDisplayBuffer.height / 2;
+	caDisplayBuffer.drawText(xCoord, yCoord, hello);
 
 	// Display the screen buffer to the terminal
 	caDisplayOutputCMD.pushOutput(caDisplayBuffer);
