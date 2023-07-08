@@ -1,6 +1,9 @@
-<img src="https://raw.githubusercontent.com/M-O-Marmalade/ConArtist/main/logo.png" width="192">
+<p align="center">
+    <img src="https://raw.githubusercontent.com/M-O-Marmalade/ConArtist/main/logo.png" width="192">
+</p>
 
-# ConArtist
+<h1 align="center">ConArtist</h1>
+
 C++ Console/Terminal game development library. Decouples game code from OS code, and provides performant and easy-to-use systems.
 
 ## Features
