@@ -1,4 +1,4 @@
-﻿#include "ASCIIOutputCMD.h"
+﻿#include "CADisplayOutputCMD.h"
 
 #include <algorithm>
 #include <vector>
@@ -11,7 +11,7 @@
 #define ESC L"\x1b"
 #define CSI L"\x1b["
 
-void Soil::ASCIIOutputCMD::resizeBuffer(COORD* newDimensions) {
+void ConArtist::CADisplayOutputCMD::resizeBuffer(COORD* newDimensions) {
 	
 	// resize our console buffer to fit the window size
 	SetConsoleScreenBufferSize(this->consoleOutputHandle, *newDimensions);
@@ -24,6 +24,12 @@ void Soil::ASCIIOutputCMD::resizeBuffer(COORD* newDimensions) {
 		{ 0,0 },
 		&dwBytesWritten);
 
+	FillConsoleOutputAttribute(this->consoleOutputHandle,
+		(WORD)0,
+		(*newDimensions).X * (*newDimensions).Y,
+		{ 0,0 },
+		&dwBytesWritten);
+
 	// store the size for comparison the next time we check this `if` statement
 	this->currentWindowSize = *newDimensions;
 
@@ -32,10 +38,10 @@ void Soil::ASCIIOutputCMD::resizeBuffer(COORD* newDimensions) {
 
 	// resize our lazy rendering buffers
 	this->textBuffer = std::vector<std::u32string>((*newDimensions).Y, std::u32string((*newDimensions).X, U' '));
-	this->colorBuffer = std::vector<std::vector<Soil::ASCIIColor>>((*newDimensions).X, std::vector<Soil::ASCIIColor>((*newDimensions).X, {0}));
+	this->colorBuffer = std::vector<std::vector<ConArtist::CAColor>>((*newDimensions).X, std::vector<ConArtist::CAColor>((*newDimensions).X, {0}));
 }
 
-bool Soil::ASCIIOutputCMD::cellNeedsUpdate(int x, int y, ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth currentColorDepth, int outputX, int outputY) {
+bool ConArtist::CADisplayOutputCMD::cellNeedsUpdate(int x, int y, CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth currentColorDepth, int outputX, int outputY) {
 	
 	// if we're out of bounds, return false
 	if (outputY >= this->textBuffer.size()
@@ -86,7 +92,7 @@ bool Soil::ASCIIOutputCMD::cellNeedsUpdate(int x, int y, ASCIIGraphics& asciiGra
 	return this->fullRedraw;
 }
 
-void Soil::ASCIIOutputCMD::storeCell(int x, int y, ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth currentColorDepth, int outputX, int outputY) {
+void ConArtist::CADisplayOutputCMD::storeCell(int x, int y, CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth currentColorDepth, int outputX, int outputY) {
 	this->textBuffer[outputY][outputX] = asciiGraphics.textBuffer[y][x];
 	this->colorBuffer[outputY][outputX].preferredColorDepth = currentColorDepth;
 	if (currentColorDepth == ANSI_4BIT_COLOR_DEPTH) {
@@ -104,7 +110,16 @@ void Soil::ASCIIOutputCMD::storeCell(int x, int y, ASCIIGraphics& asciiGraphics,
 	}
 }
 
-Soil::ASCIIOutputCMD::ASCIIOutputCMD() {
+void ConArtist::CADisplayOutputCMD::set_cursor_visibility(bool value) {
+	if (value) {
+		wprintf(CSI L"?25h");	// show the cursor
+	}
+	else {
+		wprintf(CSI L"?25l");	// hide the cursor
+	}
+}
+
+ConArtist::CADisplayOutputCMD::CADisplayOutputCMD() {
 
 	// allow for wprintf to output UTF-16 encoded unicode
 	_setmode(_fileno(stdout), _O_U16TEXT);
@@ -126,12 +141,12 @@ Soil::ASCIIOutputCMD::ASCIIOutputCMD() {
 	wprintf(CSI L"?25l");	// hide the cursor
 }
 
-Soil::ASCIIOutputCMD::~ASCIIOutputCMD() {
+ConArtist::CADisplayOutputCMD::~CADisplayOutputCMD() {
 	wprintf(CSI L"?1049l");	// switch to main buffer
 	wprintf(CSI L"?25h");	// show the cursor
 }
 
-void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth maxAllowedColorDepth) {
+void ConArtist::CADisplayOutputCMD::pushOutput(CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth maxAllowedColorDepth) {
 
 	// check what size our display is
 	CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
@@ -157,7 +172,7 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 		for (short x = 0; x < asciiGraphics.width; x++) {
 
 			// the color depth we'll be drawing at determines whether we'll use Win32 API or VTS
-			Soil::ANSIColorDepth currentColorDepth = std::min(asciiGraphics.colorBuffer[y][x].preferredColorDepth, maxAllowedColorDepth);
+			ConArtist::ANSIColorDepth currentColorDepth = std::min(asciiGraphics.colorBuffer[y][x].preferredColorDepth, maxAllowedColorDepth);
 
 			// if there are no changes in this cell, skip it
 			if (!this->cellNeedsUpdate(x, y, asciiGraphics, currentColorDepth, xOrigin + x, yOrigin + y)) {
@@ -165,7 +180,7 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 			}
 
 			// draw 4-bit color using Win32 API, it's more performant than using VTS
-			if (currentColorDepth == Soil::ANSI_4BIT_COLOR_DEPTH) {
+			if (currentColorDepth == ConArtist::ANSI_4BIT_COLOR_DEPTH) {
 
 				// batch consecutive cells of the same color (more performant than drawing each cell)
 				short x2 = x;
@@ -201,7 +216,7 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 			}
 
 			// draw 8-bit color using VTS
-			else if (currentColorDepth == Soil::ANSI_8BIT_COLOR_DEPTH) {
+			else if (currentColorDepth == ConArtist::ANSI_8BIT_COLOR_DEPTH) {
 
 				// batch consecutive cells of the same color (more performant than drawing each cell)
 				short x2 = x;
@@ -229,7 +244,7 @@ void Soil::ASCIIOutputCMD::pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSICo
 			
 
 			// draw 24-bit/Truecolor color using VTS 
-			else if (currentColorDepth == Soil::ANSI_24BIT_COLOR_DEPTH) {
+			else if (currentColorDepth == ConArtist::ANSI_24BIT_COLOR_DEPTH) {
 
 				// batch consecutive cells of the same color (more performant than drawing each cell)
 				short x2 = x;

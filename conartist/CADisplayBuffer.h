@@ -9,15 +9,15 @@
 #define NOMINMAX
 #include <Windows.h>
 
-#include "ASCIIColor.h"
-#include "ASCIISprite.h"
+#include "CAColor.h"
+#include "CAMonoSprite.h"
 #include "Coords2D.h"
 
-namespace Soil {
-	class ASCIIGraphics {
+namespace ConArtist {
+	class CADisplayBuffer {
 	private:
 		void putText(int x, int y, char32_t charToPut);
-		void putColor(int x, int y, Soil::ASCIIColor colorToPut);
+		void putColor(int x, int y, ConArtist::CAColor colorToPut);
 
 	public:
 		int width;
@@ -25,20 +25,21 @@ namespace Soil {
 
 		// buffers are indexed [y,x], origin ([0,0]) is the top-left cell of the console
 		std::vector<std::u32string> textBuffer;
-		std::vector<std::vector<Soil::ASCIIColor>> colorBuffer;
+		std::vector<std::vector<ConArtist::CAColor>> colorBuffer;
 
-		ASCIIGraphics(int width, int height);
+		CADisplayBuffer(int width, int height);
 
 		void clearBuffers();
-		void drawTextSprite(int x, int y, ASCIISprite sprite);
-		void drawTextSprite(Coords2D coordinates, ASCIISprite sprite);
+		void drawTextSprite(int x, int y, CAMonoSprite sprite);
+		void drawTextSprite(Coords2D coordinates, CAMonoSprite sprite);
 		void drawText(int x, int y, char32_t charToWrite);
 		void drawText(int x, int y, char charToWrite);
+		void drawText(int x, int y, std::u32string stringToWrite);
 		void drawText(int x, int y, std::string stringToWrite);
 		void drawText(Coords2D coordinates, std::string stringToWrite);
 		void fillText(int left, int top, int right, int bottom, char charToWrite);
 		void fillText(int left, int top, int right, int bottom, char32_t charToWrite);
-		void fillColor(int left, int top, int right, int bottom, Soil::ASCIIColor colorToDraw);
-		void fillColor(int x, int y, Soil::ASCIIColor colorToDraw);
+		void fillColor(int left, int top, int right, int bottom, ConArtist::CAColor colorToDraw);
+		void fillColor(int x, int y, ConArtist::CAColor colorToDraw);
 	};
 }

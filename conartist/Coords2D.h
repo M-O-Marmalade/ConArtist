@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace Soil {
+namespace ConArtist {
 	class Coords2D {
 	public:
 		int x = 0;

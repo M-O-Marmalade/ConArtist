@@ -12,7 +12,7 @@
 #include "ANSITrueColor.h"
 
 
-namespace Soil {
+namespace ConArtist {
 
 	constexpr auto ANSI_4BIT_DEFAULT = 0;
 
@@ -43,26 +43,26 @@ namespace Soil {
 		ANSI_24BIT_COLOR_DEPTH = 2
 	};
 
-	class ASCIIColor {
+	class CAColor {
 	public:
 		uint_fast8_t ansi4BitColorFG;
 		uint_fast8_t ansi4BitColorBG;
 		uint_fast8_t ansi8BitColorFG;
 		uint_fast8_t ansi8BitColorBG;
-		Soil::ANSITrueColor ansi24BitTruecolorFG;
-		Soil::ANSITrueColor ansi24BitTruecolorBG;
+		ConArtist::ANSITrueColor ansi24BitTruecolorFG;
+		ConArtist::ANSITrueColor ansi24BitTruecolorBG;
 
-		Soil::ANSIColorDepth preferredColorDepth;
+		ConArtist::ANSIColorDepth preferredColorDepth;
 
-		ASCIIColor(uint_fast8_t ansi4BitColorFG = ANSI_4BIT_DEFAULT,  // default/no styling
+		CAColor(uint_fast8_t ansi4BitColorFG = ANSI_4BIT_WHITE,  // default/no styling
 		           uint_fast8_t ansi4BitColorBG = ANSI_4BIT_DEFAULT,  // default/no styling
 		           uint_fast8_t ansi8BitColorFG = 15, // white
 		           uint_fast8_t ansi8BitColorBG = 0,  // black
-		           Soil::ANSITrueColor ansi24BitTruecolorFG = Soil::ANSITrueColor(255, 255, 255),
-		           Soil::ANSITrueColor ansi24BitTruecolorBG = Soil::ANSITrueColor(0, 0, 0),
-		           Soil::ANSIColorDepth preferredColorDepth = ANSI_4BIT_COLOR_DEPTH);
-		bool operator==(ASCIIColor& other);
-		bool operator!=(ASCIIColor& other);
+		           ConArtist::ANSITrueColor ansi24BitTruecolorFG = ConArtist::ANSITrueColor(255, 255, 255),
+		           ConArtist::ANSITrueColor ansi24BitTruecolorBG = ConArtist::ANSITrueColor(0, 0, 0),
+		           ConArtist::ANSIColorDepth preferredColorDepth = ANSI_4BIT_COLOR_DEPTH);
+		bool operator==(CAColor& other);
+		bool operator!=(CAColor& other);
 
 
 

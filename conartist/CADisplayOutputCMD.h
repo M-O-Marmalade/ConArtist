@@ -1,15 +1,15 @@
 // the ASCIIOutputCMD class is used to display console/terminal graphics on Microsoft Windows.
 
 #pragma once
-#include "ASCIIOutput.h"
+#include "CADisplayOutput.h"
 
 #define NOMINMAX
 #include <Windows.h>
 #include <string>
 #include <map>
 
-namespace Soil {
-    class ASCIIOutputCMD : public ASCIIOutput {
+namespace ConArtist {
+    class CADisplayOutputCMD : public CADisplayOutput {
     private:
         std::map<uint_fast8_t, WORD> ansi4BitSGRtoWin32Attribute = {
             
@@ -59,19 +59,20 @@ namespace Soil {
 
         // previous frame buffers used for comparison in lazy rendering
         std::vector<std::u32string> textBuffer;
-        std::vector<std::vector<Soil::ASCIIColor>> colorBuffer;
+        std::vector<std::vector<ConArtist::CAColor>> colorBuffer;
         bool fullRedraw = true;
 
         HANDLE consoleOutputHandle = 0;
         COORD currentWindowSize = {0,0};
 
         void resizeBuffer(COORD* newDimensions);
-        bool cellNeedsUpdate(int x, int y, ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth currentColorDepth, int outputX, int outputY);
-        void storeCell(int x, int y, ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth currentColorDepth, int outputX, int outputY);
+        bool cellNeedsUpdate(int x, int y, CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth currentColorDepth, int outputX, int outputY);
+        void storeCell(int x, int y, CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth currentColorDepth, int outputX, int outputY);
 
     public:
-        ASCIIOutputCMD();
-        ~ASCIIOutputCMD();
-        void pushOutput(ASCIIGraphics& asciiGraphics, Soil::ANSIColorDepth maxAllowedColorDepth);
+        CADisplayOutputCMD();
+        ~CADisplayOutputCMD();
+        void set_cursor_visibility(bool value);
+        void pushOutput(CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth maxAllowedColorDepth = ConArtist::ANSI_24BIT_COLOR_DEPTH);
     };
 }

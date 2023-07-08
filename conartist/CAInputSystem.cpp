@@ -1,8 +1,8 @@
-#include "InputManager.h"
+#include "CAInputSystem.h"
 
 #include <Windows.h>
 
-void Soil::InputManager::inputThreadLoop() {
+void ConArtist::CAInputSystem::inputThreadLoop() {
 	while (this->alive) {
 		this->keysToCheckMutex.lock();
 		for (char key : this->keysToCheck) {
@@ -12,21 +12,21 @@ void Soil::InputManager::inputThreadLoop() {
 	}
 }
 
-Soil::InputManager::InputManager(std::string keysToCheck) {
+ConArtist::CAInputSystem::CAInputSystem(std::string keysToCheck) {
 	this->inputBuffer = std::vector<bool>(0xFF, false);
 	this->inputAccessibleBuffer = std::vector<bool>(0xFF, false);
 
 	this->addKeys(keysToCheck);
 	
-	this->inputThread = std::thread(&Soil::InputManager::inputThreadLoop, this);
+	this->inputThread = std::thread(&ConArtist::CAInputSystem::inputThreadLoop, this);
 }
 
-Soil::InputManager::~InputManager() {
+ConArtist::CAInputSystem::~CAInputSystem() {
 	this->alive = false;
 	this->inputThread.join();
 }
 
-void Soil::InputManager::addKeys(std::string keysToAdd) {
+void ConArtist::CAInputSystem::addKeys(std::string keysToAdd) {
 	this->keysToCheckMutex.lock();
 	for (char key : keysToAdd) {
 		if (std::count(this->keysToCheck.begin(), this->keysToCheck.end(), key) == 0) { // check if we already have this key registered
@@ -36,7 +36,7 @@ void Soil::InputManager::addKeys(std::string keysToAdd) {
 	this->keysToCheckMutex.unlock();
 }
 
-void Soil::InputManager::removeKeys(std::string keysToRemove) {
+void ConArtist::CAInputSystem::removeKeys(std::string keysToRemove) {
 	this->keysToCheckMutex.lock();
 	for (char key : keysToRemove) {
 		auto index = std::find(this->keysToCheck.begin(), this->keysToCheck.end(), key); // get the index of the key, if it's registered
@@ -47,13 +47,13 @@ void Soil::InputManager::removeKeys(std::string keysToRemove) {
 	this->keysToCheckMutex.unlock();
 }
 
-void Soil::InputManager::getBufferState() {
+void ConArtist::CAInputSystem::getBufferState() {
 	for (char key : keysToCheck) {
 		this->inputAccessibleBuffer[key] = this->inputBuffer[key];
 		this->inputBuffer[key] = false;
 	}
 }
 
-bool Soil::InputManager::isKeyPressed(char key) {
+bool ConArtist::CAInputSystem::isKeyPressed(char key) {
 	return this->inputAccessibleBuffer[key];
 }

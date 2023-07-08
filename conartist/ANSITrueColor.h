@@ -3,7 +3,7 @@
 #pragma once
 #include <cstdint>
 
-namespace Soil {
+namespace ConArtist {
 	class ANSITrueColor {
 	public:
 		uint_fast8_t r = 0;

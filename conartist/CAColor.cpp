@@ -1,12 +1,12 @@
-#include "ASCIIColor.h"
+#include "CAColor.h"
 
 
-Soil::ASCIIColor::ASCIIColor(uint_fast8_t ansi4BitColorFG,
+ConArtist::CAColor::CAColor(uint_fast8_t ansi4BitColorFG,
                              uint_fast8_t ansi4BitColorBG,
                              uint_fast8_t ansi8BitColorFG, 
                              uint_fast8_t ansi8BitColorBG,
-                             Soil::ANSITrueColor ansi24BitTruecolorFG, 
-                             Soil::ANSITrueColor ansi24BitTruecolorBG, 
+                             ConArtist::ANSITrueColor ansi24BitTruecolorFG, 
+                             ConArtist::ANSITrueColor ansi24BitTruecolorBG, 
                              ANSIColorDepth preferredColorDepth) :
 
                              ansi4BitColorFG{ ansi4BitColorFG }, 
@@ -19,7 +19,7 @@ Soil::ASCIIColor::ASCIIColor(uint_fast8_t ansi4BitColorFG,
 {
 }
 
-bool Soil::ASCIIColor::operator==(ASCIIColor& other) {
+bool ConArtist::CAColor::operator==(CAColor& other) {
 	if (this->ansi4BitColorFG == other.ansi4BitColorFG && 
 	    this->ansi4BitColorBG == other.ansi4BitColorBG &&
 	    this->ansi8BitColorFG == other.ansi8BitColorFG && 
@@ -33,7 +33,7 @@ bool Soil::ASCIIColor::operator==(ASCIIColor& other) {
 	return false;
 }
 
-bool Soil::ASCIIColor::operator!=(ASCIIColor& other) {
+bool ConArtist::CAColor::operator!=(CAColor& other) {
 	if (this->ansi4BitColorFG == other.ansi4BitColorFG &&
 	    this->ansi4BitColorBG == other.ansi4BitColorBG &&
 	    this->ansi8BitColorFG == other.ansi8BitColorFG &&

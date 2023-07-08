@@ -7,8 +7,8 @@
 #include <string>
 #include <mutex>
 
-namespace Soil {
-	class InputManager {
+namespace ConArtist {
+	class CAInputSystem {
 	private:
 		std::vector<char> keysToCheck = std::vector<char>();
 		std::mutex keysToCheckMutex;
@@ -20,8 +20,8 @@ namespace Soil {
 		void inputThreadLoop();
 
 	public:
-		InputManager(std::string keysToCheck = std::string());
-		~InputManager();
+		CAInputSystem(std::string keysToCheck = std::string());
+		~CAInputSystem();
 		void addKeys(std::string keysToCheck);
 		void removeKeys(std::string keysToCheck);
 		void getBufferState();

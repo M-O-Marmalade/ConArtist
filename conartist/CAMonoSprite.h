@@ -8,16 +8,16 @@
 #include <string>
 #include <Windows.h>
 
-#include "ASCIIColor.h"
+#include "CAColor.h"
 
-namespace Soil {
-	class ASCIISprite {
+namespace ConArtist {
+	class CAMonoSprite {
 	private:
 
 	public:
 		std::u32string text;
-		Soil::ASCIIColor color;
-		ASCIISprite(std::string text, Soil::ASCIIColor color);
-		ASCIISprite(std::u32string text, Soil::ASCIIColor color);
+		ConArtist::CAColor color;
+		CAMonoSprite(std::string text, ConArtist::CAColor color);
+		CAMonoSprite(std::u32string text, ConArtist::CAColor color);
 	};
 }
