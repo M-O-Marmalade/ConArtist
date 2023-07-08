@@ -1,6 +1,6 @@
-# ConArtist
 <img src="https://raw.githubusercontent.com/M-O-Marmalade/ConArtist/main/logo.png" width="150">
 
+# ConArtist
 C++ Console/Terminal game development library, designed to help developers write straightforward, portable game code.
 
 ## Features
