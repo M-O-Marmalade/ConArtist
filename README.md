@@ -20,13 +20,15 @@ C++ Console/Terminal game development library. Decouples game code from OS code,
 4. Choose the "Empty Project" template for Windows.
 5. Name your project, choose a save location for the project, and then create the project.
 6. Download and extract ConArtist's [latest release](https://github.com/M-O-Marmalade/ConArtist/releases/download/1.0/conartist.zip) into your project's folder.
-7. Create your program's main C++ file via ***Project > Add New Item...***
-8. Choose "C++ File (.cpp)", and name the file whatever you like (recommendation: "main.cpp").
-9. Change this Project setting:
+7. Add the ConArtist source files to your project via ***Project > Add Exisiting Item...***
+	- Note: The files in the `utfcpp` folder of the ConArtist library do not need to be added. Technically, only the .cpp files of the ConArtist library need to be added to the project.
+9. Create your program's main C++ file via ***Project > Add New Item...***
+10. Choose "C++ File (.cpp)", and name the file whatever you like (recommendation: "main.cpp").
+11. Change this Project setting:
 	- ***Project > Properties > C/C++ > Command Line > Additional Options*** = `/Zc:__cplusplus`
 		- This is required due to this library's use of the C++ 11 functions from the UTF8-CPP library.
 		- See [this article](https://learn.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=msvc-170) for more details about this setting.
-10. Include the ConArtist library, and create the main function, where you'll write your program.
+12. Include the ConArtist library, and create the main function, where you'll write your program.
 ```cpp
 #include "conartist/ConArtist.h"
 
@@ -75,8 +77,7 @@ int main()
 - Doesn't currently play well with non-monospaced characters (e.g. full-width [Katakana](https://en.wikipedia.org/wiki/Katakana)). Monospaced alternatives should be used instead (e.g. [half-width kana](https://en.wikipedia.org/wiki/Half-width_kana))
 - When working with Unicode ASCII-style graphics, the use of UTF-32 encoded `u32string` is recommended over UTF-8 encoded `string`, as it simplifies character indexing operations. ConArtist uses `u32string` internally, and converts UTF-8 encoded `string` and UTF-16 encoded `u16string` to UTF-32 encoded `u32string` when these datatypes are passed as parameters to ConArtist class functions. Despite this, ConArtist's memory & performance footprints are very minimal. The choice of UTF-32 encoding simplifies Unicode ASCII-style game development and reduces potential bugs significantly.
 - The `__cplusplus` preprocessor macro must report `201103L` (C++ 11) or later, due to the use of the C++ 11 functions from the UTF8-CPP library.
-	- See step 9 in the Setup instructions above for instructions on how to accomplish this in Visual Studio.
-	- See [this article](https://learn.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=msvc-170) for more details about this setting.
+	- See step 10 in the Setup instructions above for instructions on how to accomplish this in Visual Studio.
 
 ## Dependencies / Credits
 - The [UTF8-CPP](https://github.com/nemtrif/utfcpp) library is used to convert between string encodings.
