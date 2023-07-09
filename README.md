@@ -19,16 +19,23 @@ C++ Console/Terminal game development library. Decouples game code from OS code,
 3. Filter the templates by "C++" language, and "Windows" platform.
 4. Choose the "Empty Project" template for Windows.
 5. Name your project, choose a save location for the project, and then create the project.
-6. Download and extract ConArtist's [latest release](https://github.com/M-O-Marmalade/ConArtist/releases/download/1.0/conartist.zip) into your project's folder.
+6. Download ConArtist's [latest release](https://github.com/M-O-Marmalade/ConArtist/releases/download/1.0/conartist.zip) and extract the contents of the .zip file into your project's folder.
 7. Add the ConArtist source files to your project via ***Project > Add Exisiting Item...***
 	- Note: The files in the `utfcpp` folder of the ConArtist library do not need to be added. Technically, only the .cpp files of the ConArtist library need to be added to the project.
-9. Create your program's main C++ file via ***Project > Add New Item...***
-10. Choose "C++ File (.cpp)", and name the file whatever you like (recommendation: "main.cpp").
-11. Change this Project setting:
+8. Create your program's main C++ file via ***Project > Add New Item...***
+9. Choose "C++ File (.cpp)", and name the file whatever you like (recommendation: "main.cpp").
+	- At this point, your Project folder should look something like this (plus a few extra files Visual Studio creates automatically):
+```
+Project Folder
+|- conartist (folder containing .h and .cpp files, plus the "utfcpp" folder)
+|- main.cpp
+|- Project.sln
+```   
+10. Change this Project setting:
 	- ***Project > Properties > C/C++ > Command Line > Additional Options*** = `/Zc:__cplusplus`
 		- This is required due to this library's use of the C++ 11 functions from the UTF8-CPP library.
 		- See [this article](https://learn.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=msvc-170) for more details about this setting.
-12. Include the ConArtist library, and create the main function, where you'll write your program.
+11. Include the ConArtist library, and create the main function, where you'll write your program.
 ```cpp
 #include "conartist/ConArtist.h"
 
@@ -36,7 +43,7 @@ int main() {
 
 }
 ```
-11. You're ready to create games with ConArtist!
+12. You're ready to create games with ConArtist!
 
 ## Examples
 Here is a simple "Hello World" program for Windows.
