@@ -1,7 +1,6 @@
-// The ASCIIColor class is used to define and store multi-color-depth ANSI terminal colors.
-// It's used in the ASCIISprite and ASCIIGraphics classes to represent terminal color data.
+// The CAColor class is used to define and store multi-color-depth ANSI terminal colors.
 // It stores 4-bit, 8-bit, and 24-bit color data all at once, and defines which color depth it wants to be rendered at.
-// The color will render at its preferredColorDepth, unless the maxAllowedColorDepth of the ASCIIOutput class that's rendering it is lower.
+// The color will render at its preferredColorDepth, unless the maxAllowedColorDepth of the CADisplayOutput class that's rendering it is lower.
 // If you define, for example, a 24-bit color, it's a good idea to also set the 8-bit and 4-bit colors to a similar color, so that the color will look similar/correct even if it ends up being output at those lower color depths.
 // For a reference of all 4-bit and 8-bit ANSI color palettes, see https://en.wikipedia.org/wiki/ANSI_escape_code#Colors.
 

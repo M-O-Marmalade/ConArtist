@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/M-O-Marmalade/ConArtist/main/logo.png" width="192">
+    <img src="https://raw.githubusercontent.com/M-O-Marmalade/ConArtist/main/logo.png" width="216">
 </p>
 
 <h1 align="center">ConArtist</h1>

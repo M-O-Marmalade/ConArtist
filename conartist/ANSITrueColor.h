@@ -1,4 +1,4 @@
-// Defines a 24-bit ANSI color, or ANSI "TrueColor". Used in the ASCIIColor class.
+// Defines a 24-bit ANSI color, or ANSI "TrueColor". Used in the `CAColor` class.
 
 #pragma once
 #include <cstdint>

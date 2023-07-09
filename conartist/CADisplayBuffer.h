@@ -1,6 +1,6 @@
-// the ASCIIGraphics class is a "screen" that stores buffers of Unicode text and ANSI color data.
+// the CADisplayBuffer class is a "screen" that stores buffers of Unicode text and ANSI color data.
 // This is the class that you interface with when drawing graphics.
-// When you are ready to display the graphics data this class contains to a terminal window, you pass this class/object to an ASCIIOutput class/object, which pushes data from this class to the OS's terminal display.
+// When you are ready to display the graphics data this class contains to a terminal window, you pass this class/object to an CADisplayOutput class/object, which pushes data from this class to the OS's terminal display.
 
 #pragma once
 #include <cstdint>

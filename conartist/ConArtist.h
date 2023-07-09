@@ -1,4 +1,4 @@
-// This header allows you to include the entire Soil library at once.
+// This header allows you to include the entire ConArtist library at once.
 
 #pragma once
 

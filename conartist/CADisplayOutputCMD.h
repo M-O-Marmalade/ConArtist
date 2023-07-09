@@ -1,4 +1,4 @@
-// the ASCIIOutputCMD class is used to display console/terminal graphics on Microsoft Windows.
+// the CADisplayOutputCMD class is used to display console/terminal graphics on Microsoft Windows.
 
 #pragma once
 #include "CADisplayOutput.h"
