@@ -19,7 +19,7 @@ C++ Console/Terminal game development library. Decouples game code from OS code,
 3. Filter the templates by "C++" language, and "Windows" platform.
 4. Choose the "Empty Project" template for Windows.
 5. Name your project, choose a save location for the project, and then create the project.
-6. Download and extract ConArtist's latest release into your project's folder.
+6. Download and extract ConArtist's [latest release](https://github.com/M-O-Marmalade/ConArtist/releases/download/1.0/conartist.zip) into your project's folder.
 7. Create your program's main C++ file via ***Project > Add New Item...***
 8. Choose "C++ File (.cpp)", and name the file whatever you like (recommendation: "main.cpp").
 9. Change this Project setting:
