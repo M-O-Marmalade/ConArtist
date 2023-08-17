@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef UTF_CPP_CPLUSPLUS
+#define UTF_CPP_CPLUSPLUS 201103L
+#endif
+
 #include "ANSITrueColor.h"
 #include "CAColor.h"
 #include "CADisplayBuffer.h"

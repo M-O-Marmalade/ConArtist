@@ -4,11 +4,13 @@
 
 void ConArtist::CAInputSystem::inputThreadLoop() {
 	while (this->alive) {
+		pausedMutex.lock();
 		this->keysToCheckMutex.lock();
 		for (char key : this->keysToCheck) {
 			this->inputBuffer[key] = this->inputBuffer[key] || (0x8000 & GetAsyncKeyState((unsigned char)(key))) != 0;
 		}
 		this->keysToCheckMutex.unlock();
+		pausedMutex.unlock();
 	}
 }
 
@@ -54,6 +56,33 @@ void ConArtist::CAInputSystem::getBufferState() {
 	}
 }
 
+void ConArtist::CAInputSystem::clearBuffer() {
+	for (char key : keysToCheck) {
+		this->inputBuffer[key] = false;
+	}
+}
+
 bool ConArtist::CAInputSystem::isKeyPressed(char key) {
 	return this->inputAccessibleBuffer[key];
+}
+
+bool ConArtist::CAInputSystem::isAnyKeyPressed() {
+	this->keysToCheckMutex.lock();
+	for (char key : this->keysToCheck) {
+		this->inputBuffer[key] = this->inputBuffer[key] || (0x8000 & GetAsyncKeyState((unsigned char)(key))) != 0;
+	}
+	this->keysToCheckMutex.unlock();
+	return false;
+}
+
+void ConArtist::CAInputSystem::pause() {
+	pausedMutex.lock();
+	paused = true;
+	pausedMutex.unlock();
+}
+
+void ConArtist::CAInputSystem::unpause() {
+	pausedMutex.lock();
+	paused = false;
+	pausedMutex.unlock();
 }

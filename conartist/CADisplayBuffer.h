@@ -30,6 +30,7 @@ namespace ConArtist {
 		CADisplayBuffer(int width, int height);
 
 		void clearBuffers();
+		void clearTextBuffer();
 		void drawTextSprite(int x, int y, CAMonoSprite sprite);
 		void drawTextSprite(Coords2D coordinates, CAMonoSprite sprite);
 		void drawText(int x, int y, char32_t charToWrite);

@@ -1,5 +1,9 @@
 #include "CADisplayBuffer.h"
 
+
+#ifndef UTF_CPP_CPLUSPLUS
+#define UTF_CPP_CPLUSPLUS 201103L
+#endif
 #include "utfcpp/source/utf8.h"
 
 void ConArtist::CADisplayBuffer::putText(int x, int y, char32_t charToPut) {
@@ -24,6 +28,15 @@ void ConArtist::CADisplayBuffer::clearBuffers() {
 		for (int x = 0; x < this->width; x++) {
 			putText(x, y, U' ');
 			putColor(x, y, ConArtist::CAColor(0,0,0));
+		}
+	}
+}
+
+void ConArtist::CADisplayBuffer::clearTextBuffer()
+{
+	for (int y = 0; y < this->height; y++) {
+		for (int x = 0; x < this->width; x++) {
+			putText(x, y, U' ');
 		}
 	}
 }

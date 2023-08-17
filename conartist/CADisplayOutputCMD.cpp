@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <io.h>
 #include <fcntl.h>
+
+#ifndef UTF_CPP_CPLUSPLUS
+#define UTF_CPP_CPLUSPLUS 201103L
+#endif
 #include "utfcpp/source/utf8.h"
 
 #define ESC L"\x1b"
@@ -111,17 +115,35 @@ void ConArtist::CADisplayOutputCMD::storeCell(int x, int y, CADisplayBuffer& asc
 }
 
 void ConArtist::CADisplayOutputCMD::set_cursor_visibility(bool value) {
+	
 	if (value) {
-		wprintf(CSI L"?25h");	// show the cursor
+		// show the cursor
+		CONSOLE_CURSOR_INFO curInfo;
+		GetConsoleCursorInfo(this->consoleOutputHandle, &curInfo);
+		curInfo.bVisible = TRUE;
+		SetConsoleCursorInfo(this->consoleOutputHandle, &curInfo);
+		wprintf(CSI L"?25h"); // use the virutal terminal sequence as well
 	}
 	else {
-		wprintf(CSI L"?25l");	// hide the cursor
+		// hide the cursor
+		CONSOLE_CURSOR_INFO curInfo;
+		GetConsoleCursorInfo(this->consoleOutputHandle, &curInfo);
+		curInfo.bVisible = FALSE;
+		SetConsoleCursorInfo(this->consoleOutputHandle, &curInfo);
+		wprintf(CSI L"?25l"); // use the virutal terminal sequence as well
 	}
 }
 
 ConArtist::CADisplayOutputCMD::CADisplayOutputCMD() {
+	//takeOverCMD();
+}
 
-	// allow for wprintf to output UTF-16 encoded unicode
+ConArtist::CADisplayOutputCMD::~CADisplayOutputCMD() {
+	releaseCMD();
+}
+
+void ConArtist::CADisplayOutputCMD::takeOverCMD() {
+	// allow for wprintf to output UTF-16 encoded unicode to stdout
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
 	this->consoleOutputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -138,12 +160,15 @@ ConArtist::CADisplayOutputCMD::CADisplayOutputCMD() {
 	resizeBuffer(&consoleScreenBufferInfo.dwMaximumWindowSize);
 
 	wprintf(CSI L"?1049h");	// switch to alternate buffer
-	wprintf(CSI L"?25l");	// hide the cursor
+	set_cursor_visibility(false); // hide the cursor
 }
 
-ConArtist::CADisplayOutputCMD::~CADisplayOutputCMD() {
+void ConArtist::CADisplayOutputCMD::releaseCMD() {
+	// reset the output mode of stdout
+	_setmode(_fileno(stdout), _O_TEXT);
+
 	wprintf(CSI L"?1049l");	// switch to main buffer
-	wprintf(CSI L"?25h");	// show the cursor
+	set_cursor_visibility(true); // show the cursor
 }
 
 void ConArtist::CADisplayOutputCMD::pushOutput(CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth maxAllowedColorDepth) {

@@ -72,6 +72,8 @@ namespace ConArtist {
     public:
         CADisplayOutputCMD();
         ~CADisplayOutputCMD();
+        void takeOverCMD();
+        void releaseCMD();
         void set_cursor_visibility(bool value);
         void pushOutput(CADisplayBuffer& asciiGraphics, ConArtist::ANSIColorDepth maxAllowedColorDepth = ConArtist::ANSI_24BIT_COLOR_DEPTH);
     };
