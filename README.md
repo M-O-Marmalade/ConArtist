@@ -47,7 +47,7 @@ Here is a simple "Hello World" program for Windows.
 ```cpp
 #include "conartist/ConArtist.h"
 
-using namespace std::chrono_literals;
+using namespace std::chrono_literals; // allows writing "5s" (five seconds) in this_thread::sleep_for()
 
 int main()
 {
